@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useActiveSources } from '../stores/sourceStore'
-import type { ApiSource, FileSource, SupabaseSource, SupabaseS3Source } from '../types'
+import type { ApiSource, SupabaseSource, SupabaseS3Source } from '../types'
 import { fetchApiApps } from '../services/apiService'
 import { fetchSupabaseApps } from '../services/supabaseService'
 import { fetchSupabaseS3AppNames } from '../services/supabaseS3Service'

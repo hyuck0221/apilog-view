@@ -67,11 +67,11 @@ export function SourceForm({ existing, onDone }: SourceFormProps) {
     const base = { name, enabled: true }
     switch (type) {
       case 'supabase':
-        return { ...base, type: 'supabase', url: sbUrl, anonKey: sbKey, tableName: sbTable || 'api_logs' }
+        return { ...base, type: 'supabase', url: sbUrl, anonKey: sbKey, tableName: sbTable || 'api_logs' } as Omit<SupabaseSource, 'id' | 'color'>
       case 'supabase-s3':
-        return { ...base, type: 'supabase-s3', url: s3Url, anonKey: s3Key, bucket: s3Bucket || 'api-logs', keyPrefix: s3Prefix || 'logs/', format: s3Format, maxFiles: s3MaxFiles }
+        return { ...base, type: 'supabase-s3', url: s3Url, anonKey: s3Key, bucket: s3Bucket || 'api-logs', keyPrefix: s3Prefix || 'logs/', format: s3Format, maxFiles: s3MaxFiles } as Omit<SupabaseS3Source, 'id' | 'color'>
       case 'api':
-        return { ...base, type: 'api', baseUrl: apiBaseUrl, basePath: apiBasePath || '/apilog', apiKey: apiKey || undefined }
+        return { ...base, type: 'api', baseUrl: apiBaseUrl, basePath: apiBasePath || '/apilog', apiKey: apiKey || undefined } as Omit<ApiSource, 'id' | 'color'>
       case 'file':
         return {
           ...base,
@@ -82,7 +82,7 @@ export function SourceForm({ existing, onDone }: SourceFormProps) {
           directory: fileDirectory || undefined,
           format: fileDirectory ? fileFormat : undefined,
           maxFiles: fileDirectory ? fileMaxFiles : undefined,
-        }
+        } as Omit<FileSource, 'id' | 'color'>
     }
   }
 

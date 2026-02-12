@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { BarChart2, List, Settings, ChevronRight, ChevronLeft, CheckSquare, Square } from 'lucide-react'
+import { List, Settings, ChevronRight, ChevronLeft, CheckSquare, Square } from 'lucide-react'
 import { useSourceStore } from '../../stores/sourceStore'
 import { useT } from '../../i18n/useT'
 import clsx from 'clsx'

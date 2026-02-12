@@ -1,7 +1,6 @@
 import { Activity, Clock, Zap, BarChart2, Loader2 } from 'lucide-react'
 import { useActiveSources } from '../../stores/sourceStore'
 import { useSourceStats } from '../../hooks/useLogs'
-import type { ApiLogStats } from '../../types'
 import { useT } from '../../i18n/useT'
 import clsx from 'clsx'
 

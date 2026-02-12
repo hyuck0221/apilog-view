@@ -172,7 +172,7 @@ const en = {
   'settings.import.errorEmpty': 'File contains no sources',
   'settings.import.errorEntry': 'Invalid source entry: missing id, name, or type',
   'settings.import.errorParse': 'Failed to parse file',
-} as const
+}
 
 const ko: typeof en = {
   // ── Common ────────────────────────────────────────────────

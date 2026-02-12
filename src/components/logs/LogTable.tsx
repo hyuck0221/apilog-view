@@ -18,7 +18,7 @@ function SortIcon({ field, sort }: { field: string; sort: SortConfig }) {
 
 export function LogTable() {
   const t = useT()
-  const { data, isFetching, isError, error } = useMergedLogs()
+  const { data, isFetching } = useMergedLogs()
   const { sort, setSort, page, setPage, pageSize, setPageSize } = useFilterStore()
   const [selectedEntry, setSelectedEntry] = useState<ApiLogEntry | null>(null)
 
