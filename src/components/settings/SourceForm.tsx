@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import clsx from 'clsx'
-import type { LogSource, SourceType, SupabaseSource, SupabaseS3Source, ApiSource, FileSource } from '../../types'
+import type { LogSource, SourceType, SupabaseSource, SupabaseS3Source, ApiSource, FileSource, ApiDocsSource } from '../../types'
 import { useSourceStore } from '../../stores/sourceStore'
 import { testSupabaseConnection, invalidateClient } from '../../services/supabaseService'
 import { testSupabaseS3Connection, invalidateS3Client, invalidateS3Cache } from '../../services/supabaseS3Service'
 import { testApiConnection } from '../../services/apiService'
 import { testFileApiConnection, invalidateFileCache } from '../../services/fileApiService'
+import { testApiDocsConnection } from '../../services/apiDocsService'
 import { useT } from '../../i18n/useT'
 
 interface SourceFormProps {
@@ -25,6 +26,7 @@ export function SourceForm({ existing, onDone }: SourceFormProps) {
     { value: 'file',       label: t('sourceForm.type.file.label'),       desc: t('sourceForm.type.file.desc') },
     { value: 'supabase',   label: t('sourceForm.type.supabase.label'),   desc: t('sourceForm.type.supabase.desc') },
     { value: 'supabase-s3',label: t('sourceForm.type.supabaseS3.label'), desc: t('sourceForm.type.supabaseS3.desc') },
+    { value: 'api-docs',   label: t('sourceForm.type.apiDocs.label'),    desc: t('sourceForm.type.apiDocs.desc') },
   ]
 
   const [type, setType] = useState<SourceType>(existing?.type ?? 'api')
@@ -49,6 +51,11 @@ export function SourceForm({ existing, onDone }: SourceFormProps) {
   const [apiBasePath, setApiBasePath] = useState((existing as ApiSource | undefined)?.basePath ?? '/apilog')
   const [apiKey, setApiKey] = useState((existing as ApiSource | undefined)?.apiKey ?? '')
 
+  // API Docs fields
+  const apiDocs = existing as ApiDocsSource | undefined
+  const [apiDocsBaseUrl, setApiDocsBaseUrl] = useState(apiDocs?.baseUrl ?? '')
+  const [apiDocsBasePath, setApiDocsBasePath] = useState(apiDocs?.basePath ?? '/apilog')
+
   // Local File fields
   const file = existing as FileSource | undefined
   const [fileBaseUrl, setFileBaseUrl] = useState(file?.baseUrl ?? '')
@@ -72,6 +79,8 @@ export function SourceForm({ existing, onDone }: SourceFormProps) {
         return { ...base, type: 'supabase-s3', url: s3Url, anonKey: s3Key, bucket: s3Bucket || 'api-logs', keyPrefix: s3Prefix || 'logs/', format: s3Format, maxFiles: s3MaxFiles } as Omit<SupabaseS3Source, 'id' | 'color'>
       case 'api':
         return { ...base, type: 'api', baseUrl: apiBaseUrl, basePath: apiBasePath || '/apilog', apiKey: apiKey || undefined } as Omit<ApiSource, 'id' | 'color'>
+      case 'api-docs':
+        return { ...base, type: 'api-docs', baseUrl: apiDocsBaseUrl, basePath: apiDocsBasePath || '/apilog' } as Omit<ApiDocsSource, 'id' | 'color'>
       case 'file':
         return {
           ...base,
@@ -97,6 +106,8 @@ export function SourceForm({ existing, onDone }: SourceFormProps) {
         await testSupabaseS3Connection(src as SupabaseS3Source)
       } else if (src.type === 'file') {
         await testFileApiConnection(src as FileSource)
+      } else if (src.type === 'api-docs') {
+        await testApiDocsConnection(src as ApiDocsSource)
       } else {
         await testApiConnection({ ...src, type: 'api' } as ApiSource)
       }
@@ -127,6 +138,7 @@ export function SourceForm({ existing, onDone }: SourceFormProps) {
     type === 'supabase'    ? sbUrl !== '' && sbKey !== '' :
     type === 'supabase-s3' ? s3Url !== '' && s3Key !== '' :
     type === 'api'         ? apiBaseUrl !== '' :
+    type === 'api-docs'    ? apiDocsBaseUrl !== '' :
     type === 'file'        ? fileBaseUrl !== '' : false
   )
 
@@ -270,6 +282,27 @@ export function SourceForm({ existing, onDone }: SourceFormProps) {
             <input type="password" className="input" placeholder={t('sourceForm.field.apiKeyPlaceholder')}
               value={apiKey} onChange={e => setApiKey(e.target.value)} />
           </div>
+        </>
+      )}
+
+      {/* API Docs */}
+      {type === 'api-docs' && (
+        <>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2">
+              <label className="label">{t('sourceForm.field.baseUrl')}</label>
+              <input type="text" className="input" placeholder="http://localhost:8080"
+                value={apiDocsBaseUrl} onChange={e => setApiDocsBaseUrl(e.target.value)} />
+            </div>
+            <div>
+              <label className="label">{t('sourceForm.field.basePath')}</label>
+              <input type="text" className="input" placeholder="/apilog"
+                value={apiDocsBasePath} onChange={e => setApiDocsBasePath(e.target.value)} />
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 -mt-3">
+            {t('sourceForm.apiDocsEndpointHint', apiDocsBaseUrl, apiDocsBasePath)}
+          </p>
         </>
       )}
 

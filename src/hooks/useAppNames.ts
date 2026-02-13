@@ -16,23 +16,25 @@ export function useAppNames() {
   return useQuery({
     queryKey: ['appNames', activeSources.map(s => s.id)],
     queryFn: async (): Promise<string[]> => {
-      if (activeSources.length === 0) return []
+      const logSources = activeSources.filter(s => s.type !== 'api-docs')
+      if (logSources.length === 0) return []
 
       const results = await Promise.allSettled(
-        activeSources.map(src => {
+        logSources.map(src => {
           switch (src.type) {
             case 'api':
             case 'file':
               return fetchApiApps({ ...src, type: 'api' } as ApiSource)
             case 'supabase':    return fetchSupabaseApps(src as SupabaseSource)
             case 'supabase-s3': return fetchSupabaseS3AppNames(src as SupabaseS3Source)
+            default: return Promise.resolve([])
           }
         })
       )
 
       const allNames = new Set<string>()
       results.forEach(r => {
-        if (r.status === 'fulfilled') r.value.forEach(n => allNames.add(n))
+        if (r.status === 'fulfilled' && r.value) r.value.forEach(n => allNames.add(n))
       })
       return [...allNames].sort()
     },

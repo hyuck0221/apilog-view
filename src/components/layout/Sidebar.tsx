@@ -1,5 +1,6 @@
-import { NavLink } from 'react-router-dom'
-import { List, Settings, ChevronRight, ChevronLeft, CheckSquare, Square } from 'lucide-react'
+import { NavLink, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { List, Settings, BookOpen, ChevronRight, ChevronLeft, CheckSquare, Square, Circle, CheckCircle2 } from 'lucide-react'
 import { useSourceStore } from '../../stores/sourceStore'
 import { useT } from '../../i18n/useT'
 import clsx from 'clsx'
@@ -11,17 +12,53 @@ interface SidebarProps {
 
 export function Sidebar({ open, onToggle }: SidebarProps) {
   const t = useT()
+  const location = useLocation()
   const sources = useSourceStore(s => s.sources)
   const selectedSourceIds = useSourceStore(s => s.selectedSourceIds)
-  const { toggleSelectedSource, selectAllSources, deselectAllSources } = useSourceStore()
+  const { toggleSelectedSource, setSelectedSourceIds, selectAllSources, deselectAllSources } = useSourceStore()
 
-  const allSelected = sources.filter(s => s.enabled).every(s => selectedSourceIds.includes(s.id))
-  const enabledSources = sources.filter(s => s.enabled)
+  const isApiDocsPage = location.pathname === '/api-docs'
+  
+  const enabledSources = sources.filter(s => {
+    if (!s.enabled) return false
+    if (isApiDocsPage) return s.type === 'api-docs'
+    return s.type !== 'api-docs'
+  })
+
+  // Auto-select first doc source if none selected
+  useEffect(() => {
+    if (isApiDocsPage && enabledSources.length > 0) {
+      const hasSelectedDoc = enabledSources.some(s => selectedSourceIds.includes(s.id))
+      if (!hasSelectedDoc) {
+        const otherTypeIds = selectedSourceIds.filter(sid => {
+          const s = sources.find(src => src.id === sid)
+          return s && s.type !== 'api-docs'
+        })
+        setSelectedSourceIds([...otherTypeIds, enabledSources[0]!.id])
+      }
+    }
+  }, [isApiDocsPage, enabledSources, selectedSourceIds, setSelectedSourceIds, sources])
+
+  const allSelected = enabledSources.length > 0 && enabledSources.every(s => selectedSourceIds.includes(s.id))
 
   const NAV_ITEMS = [
     { to: '/logs', label: t('sidebar.logs'), icon: List },
+    { to: '/api-docs', label: t('sidebar.apiDocs'), icon: BookOpen },
     { to: '/settings', label: t('sidebar.settings'), icon: Settings },
   ]
+
+  const handleSourceClick = (id: string) => {
+    if (isApiDocsPage) {
+      // Single select for API docs: keep other types, but only one api-docs source
+      const otherTypeIds = selectedSourceIds.filter(sid => {
+        const s = sources.find(src => src.id === sid)
+        return s && s.type !== 'api-docs'
+      })
+      setSelectedSourceIds([...otherTypeIds, id])
+    } else {
+      toggleSelectedSource(id)
+    }
+  }
 
   return (
     <aside
@@ -59,7 +96,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-500">
               {t('sidebar.sources')}
             </span>
-            {enabledSources.length > 0 && (
+            {enabledSources.length > 0 && !isApiDocsPage && (
               <button
                 onClick={allSelected ? deselectAllSources : selectAllSources}
                 className="text-xs text-brand-600 dark:text-brand-400 hover:underline"
@@ -83,7 +120,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                 return (
                   <button
                     key={source.id}
-                    onClick={() => toggleSelectedSource(source.id)}
+                    onClick={() => handleSourceClick(source.id)}
                     className={clsx(
                       'flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm w-full text-left',
                       'transition-colors',
@@ -99,10 +136,15 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                     <span className="flex-1 truncate text-gray-700 dark:text-gray-300">
                       {source.name}
                     </span>
-                    {isSelected
-                      ? <CheckSquare className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 flex-shrink-0" />
-                      : <Square className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                    }
+                    {isApiDocsPage ? (
+                      isSelected 
+                        ? <CheckCircle2 className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 flex-shrink-0" />
+                        : <Circle className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                    ) : (
+                      isSelected
+                        ? <CheckSquare className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 flex-shrink-0" />
+                        : <Square className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                    )}
                   </button>
                 )
               })}

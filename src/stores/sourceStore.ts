@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { LogSource, SupabaseSource, SupabaseS3Source, ApiSource, FileSource } from '../types'
+import type { LogSource, SupabaseSource, SupabaseS3Source, ApiSource, FileSource, ApiDocsSource } from '../types'
 import { SOURCE_COLORS } from '../types'
 
 interface SourceStore {
@@ -145,4 +145,9 @@ export const useApiSources = () => {
 export const useFileSources = () => {
   const sources = useSourceStore(s => s.sources)
   return useMemo(() => sources.filter((src): src is FileSource => src.type === 'file'), [sources])
+}
+
+export const useApiDocsSources = () => {
+  const sources = useSourceStore(s => s.sources)
+  return useMemo(() => sources.filter((src): src is ApiDocsSource => src.type === 'api-docs'), [sources])
 }

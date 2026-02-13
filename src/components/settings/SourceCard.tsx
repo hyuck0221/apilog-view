@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, Trash2, Power, Database, Globe, FileText, Cloud, ChevronDown } from 'lucide-react'
+import { Pencil, Trash2, Power, Database, Globe, FileText, Cloud, ChevronDown, BookOpen } from 'lucide-react'
 import clsx from 'clsx'
 import type { LogSource, SupabaseS3Source } from '../../types'
 import { useSourceStore } from '../../stores/sourceStore'
@@ -11,6 +11,7 @@ const TYPE_ICONS = {
   'supabase-s3': Cloud,
   api: Globe,
   file: FileText,
+  'api-docs': BookOpen,
 }
 
 interface SourceCardProps {
@@ -30,6 +31,7 @@ export function SourceCard({ source }: SourceCardProps) {
     'supabase-s3': t('sourceCard.type.supabaseS3'),
     api: t('sourceCard.type.api'),
     file: t('sourceCard.type.file'),
+    'api-docs': t('sourceCard.type.apiDocs'),
   }
 
   return (
@@ -125,5 +127,6 @@ function sourceSubtitle(source: LogSource): string {
     }
     case 'api':         return `${source.baseUrl}${source.basePath || '/apilog'}`
     case 'file':        return `${source.baseUrl}${source.basePath || '/apilog'}`
+    case 'api-docs':    return `${source.baseUrl}${source.basePath || '/apilog'}/document`
   }
 }

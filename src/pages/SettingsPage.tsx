@@ -216,38 +216,45 @@ export function SettingsPage() {
       )}
 
       {/* API Reference */}
-      <div className="card p-5">
-        <h2 className="font-medium text-gray-900 dark:text-gray-100 mb-3">
+      <div className="card p-6 bg-brand-50/50 dark:bg-brand-950/10 border-brand-100 dark:border-brand-900/50">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
           {t('settings.apiRef.title')}
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
           {t('settings.apiRef.description')}
         </p>
-        <div className="space-y-2">
-          {API_DOCS.map(doc => (
-            <div key={doc.path} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="badge bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400">GET</span>
-                <code className="font-mono text-sm text-gray-900 dark:text-gray-100">{doc.path}</code>
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{doc.description}</p>
-              {doc.params && (
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 font-mono">
-                  Params: {doc.params}
-                </p>
-              )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider px-1">Logs & Stats</h3>
+            <div className="space-y-2">
+              <ApiEndpointItem method="GET" path="/logs" label={t('settings.apiRef.logs')} />
+              <ApiEndpointItem method="GET" path="/stats" label={t('settings.apiRef.stats')} />
+              <ApiEndpointItem method="GET" path="/apps" label={t('settings.apiRef.apps')} />
             </div>
-          ))}
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider px-1">API Documentation</h3>
+            <div className="space-y-2">
+              <ApiEndpointItem method="GET" path="/document/status" label={t('settings.apiRef.docsStatus')} />
+              <ApiEndpointItem method="GET" path="/document" label={t('settings.apiRef.docsList')} />
+              <ApiEndpointItem method="GET" path="/document/categories" label={t('settings.apiRef.docsCats')} />
+            </div>
+          </div>
         </div>
-        <a
-          href="https://github.com/hyuck0221/springboot-apilog"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-sm text-brand-600 dark:text-brand-400 hover:underline mt-3"
-        >
-          {t('settings.apiRef.viewDocs')}
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
+
+        <div className="mt-8 pt-6 border-t border-brand-100 dark:border-brand-900/50 flex justify-center">
+          <a
+            href="https://github.com/hyuck0221/springboot-apilog"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 dark:text-brand-400 hover:underline"
+          >
+            {t('settings.apiRef.viewDocs')}
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
       </div>
 
       {/* Import dialog */}
@@ -261,25 +268,16 @@ export function SettingsPage() {
   )
 }
 
-const API_DOCS = [
-  {
-    path: '{basePath}/logs',
-    description: 'Returns a paginated list of log entries.',
-    params: 'page, size, appName, url, method, statusCode, startTime, endTime, minProcessingTimeMs, sortBy, sortDir',
-  },
-  {
-    path: '{basePath}/logs/:id',
-    description: 'Returns a single log entry by ID.',
-    params: undefined,
-  },
-  {
-    path: '{basePath}/logs/stats',
-    description: 'Returns aggregate statistics: total count, avg/max/p99 duration, count by status/method/appName.',
-    params: 'startTime, endTime',
-  },
-  {
-    path: '{basePath}/logs/apps',
-    description: 'Returns the list of distinct app names recorded in the logs.',
-    params: undefined,
-  },
-]
+function ApiEndpointItem({ method, path, label }: { method: string; path: string; label: string }) {
+  return (
+    <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded-lg border border-brand-100 dark:border-brand-900/30 shadow-sm">
+      <div className="flex flex-col gap-0.5">
+        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">{label}</span>
+        <code className="text-[13px] font-mono text-gray-800 dark:text-gray-200">{path}</code>
+      </div>
+      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+        {method}
+      </span>
+    </div>
+  )
+}

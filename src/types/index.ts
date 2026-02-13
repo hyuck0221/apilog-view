@@ -49,7 +49,7 @@ export interface ApiLogStats {
 
 // ─── Log sources ─────────────────────────────────────────────────────────────
 
-export type SourceType = 'supabase' | 'supabase-s3' | 'api' | 'file'
+export type SourceType = 'supabase' | 'supabase-s3' | 'api' | 'file' | 'api-docs'
 
 export interface BaseSource {
   id: string
@@ -125,7 +125,50 @@ export interface FileSource extends BaseSource {
   maxFiles?: number     // how many recent files to load (default: 5)
 }
 
-export type LogSource = SupabaseSource | SupabaseS3Source | ApiSource | FileSource
+/**
+ * API Docs source: connects to an app exposing API documentation endpoints.
+ *
+ *   GET {baseUrl}/{basePath}/document/status  — check if enabled
+ *   GET {baseUrl}/{basePath}/document         — paginated, searchable API list
+ */
+export interface ApiDocsSource extends BaseSource {
+  type: 'api-docs'
+  baseUrl: string   // e.g., http://localhost:8080
+  basePath: string  // e.g., /apilog
+}
+
+// ─── API Doc entry (returned by GET {basePath}/document) ─────────────────────
+
+export interface ApiDocParam {
+  path: string
+  type: string
+  description: string
+  nullable: boolean
+  parameterType: 'PATH' | 'QUERY' | 'BODY' | 'HEADER' | 'COOKIE' | null
+}
+
+export interface ApiDocEntry {
+  id?: string
+  url: string
+  method: HttpMethod
+  title?: string | null
+  description?: string | null
+  category?: string | null
+  requestSchema?: Record<string, any> | null
+  responseSchema?: Record<string, any> | null
+  requestInfos?: ApiDocParam[]
+  responseInfos?: ApiDocParam[]
+}
+
+export interface ApiDocPagedResponse {
+  content: ApiDocEntry[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
+export type LogSource = SupabaseSource | SupabaseS3Source | ApiSource | FileSource | ApiDocsSource
 
 // ─── Filter & query state ────────────────────────────────────────────────────
 

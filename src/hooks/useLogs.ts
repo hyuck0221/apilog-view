@@ -37,7 +37,9 @@ export function useMergedLogs() {
   const allSources = useSourceStore(s => s.sources)
   const selectedSourceIds = useSourceStore(s => s.selectedSourceIds)
   const sources = useMemo(
-    () => allSources.filter(src => src.enabled && selectedSourceIds.includes(src.id)),
+    () => allSources.filter((src): src is SupabaseSource | SupabaseS3Source | ApiSource | FileSource =>
+      src.enabled && selectedSourceIds.includes(src.id) && src.type !== 'api-docs'
+    ),
     [allSources, selectedSourceIds]
   )
   const { filters, sort, page, pageSize, autoRefreshInterval, refreshTick } = useFilterStore()
@@ -127,6 +129,8 @@ export function useSourceStats(sourceId: string) {
         case 'supabase-s3': return fetchSupabaseS3Stats(source as SupabaseS3Source)
         case 'api':   return fetchApiStats({ ...source, type: 'api' } as ApiSource)
         case 'file':  return fetchFileApiStats(source as FileSource, refreshTick)
+        default:
+          throw new Error(`Stats not supported for source type ${source.type}`)
       }
     },
     enabled: !!source,
