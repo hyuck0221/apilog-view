@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { ChevronUp, ChevronDown, ChevronsUpDown, AlertCircle, Loader2 } from 'lucide-react'
 import clsx from 'clsx'
 import { format } from 'date-fns'
@@ -99,18 +99,25 @@ export function LogTable() {
                   </td>
                 </tr>
               ) : (
-                entries.map(entry => (
-                  <LogRow
-                    key={`${entry._sourceId}-${entry.id}`}
-                    entry={entry}
-                    isSelected={selectedEntry?.id === entry.id && selectedEntry?._sourceId === entry._sourceId}
-                    onClick={() => setSelectedEntry(
-                      selectedEntry?.id === entry.id && selectedEntry?._sourceId === entry._sourceId
-                        ? null
-                        : entry
-                    )}
-                  />
-                ))
+                entries.map(entry => {
+                  const isSelected = selectedEntry?.id === entry.id && selectedEntry?._sourceId === entry._sourceId
+                  return (
+                    <Fragment key={`${entry._sourceId}-${entry.id}`}>
+                      <LogRow
+                        entry={entry}
+                        isSelected={isSelected}
+                        onClick={() => setSelectedEntry(isSelected ? null : entry)}
+                      />
+                      {isSelected && (
+                        <tr>
+                          <td colSpan={COLUMNS.length} className="p-0 border-b border-brand-200 dark:border-brand-800">
+                            <LogDetail entry={entry} onClose={() => setSelectedEntry(null)} />
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  )
+                })
               )}
             </tbody>
           </table>
@@ -156,10 +163,6 @@ export function LogTable() {
         </div>
       </div>
 
-      {/* Detail panel */}
-      {selectedEntry && (
-        <LogDetail entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
-      )}
     </div>
   )
 }

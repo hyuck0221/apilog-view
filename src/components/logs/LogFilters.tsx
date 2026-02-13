@@ -127,18 +127,23 @@ export function LogFilters() {
           >
             <RefreshCw className="w-4 h-4" />
           </button>
-          <select
-            className="input w-36 text-xs"
-            value={autoRefreshInterval}
-            onChange={e => setAutoRefreshInterval(Number(e.target.value))}
-            title={t('refresh.autoRefresh')}
-          >
-            {AUTO_REFRESH_OPTIONS.map(opt => (
-              <option key={opt.ms} value={opt.ms}>
-                {t('refresh.autoRefresh')}: {t(opt.labelKey)}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap select-none">
+              {t('refresh.autoRefresh')}
+            </span>
+            <select
+              className="input w-20 text-xs"
+              value={autoRefreshInterval}
+              onChange={e => setAutoRefreshInterval(Number(e.target.value))}
+              title={t('refresh.autoRefresh')}
+            >
+              {AUTO_REFRESH_OPTIONS.map(opt => (
+                <option key={opt.ms} value={opt.ms}>
+                  {t(opt.labelKey)}
+                </option>
+              ))}
+            </select>
+          </div>
           {autoRefreshInterval > 0 && (
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" title={t('refresh.autoRefresh')} />
           )}

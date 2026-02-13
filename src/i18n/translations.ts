@@ -80,6 +80,8 @@ const en = {
   'detail.responseInfo': 'Response Info',
   'detail.requestBody': 'Request Body',
   'detail.responseBody': 'Response Body',
+  'detail.copy': 'Copy',
+  'detail.copied': 'Copied',
 
   // ── Stats ─────────────────────────────────────────────────
   'stats.total': 'Total',
@@ -203,7 +205,7 @@ const ko: typeof en = {
   // ── Refresh ───────────────────────────────────────────────
   'refresh.refresh': '새로고침',
   'refresh.autoRefresh': '자동 새로고침',
-  'refresh.off': '설정 안함',
+  'refresh.off': '끔',
   'refresh.1s': '1초',
   'refresh.5s': '5초',
   'refresh.10s': '10초',
@@ -254,6 +256,8 @@ const ko: typeof en = {
   'detail.responseInfo': '응답 정보',
   'detail.requestBody': '요청 바디',
   'detail.responseBody': '응답 바디',
+  'detail.copy': '복사',
+  'detail.copied': '복사됨',
 
   // ── Stats ─────────────────────────────────────────────────
   'stats.total': '전체',

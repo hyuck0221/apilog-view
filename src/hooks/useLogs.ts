@@ -131,6 +131,7 @@ export function useSourceStats(sourceId: string) {
     },
     enabled: !!source,
     staleTime: 60_000,
+    placeholderData: (prev) => prev,
     refetchInterval: autoRefreshInterval > 0 ? autoRefreshInterval : false,
   })
 }

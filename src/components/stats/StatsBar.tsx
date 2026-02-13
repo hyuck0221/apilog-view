@@ -30,13 +30,17 @@ function SourceStatsCards({
   sourceColor: string
 }) {
   const t = useT()
-  const { data: stats, isLoading, error } = useSourceStats(sourceId)
+  const { data: stats, isLoading, isFetching, error } = useSourceStats(sourceId)
 
-  if (isLoading) {
+  // 초기 로딩 (데이터 없음): 동일 크기의 skeleton 카드로 레이아웃 고정
+  if (isLoading && !stats) {
     return (
-      <div className="card flex items-center gap-2 px-4 py-3 text-sm text-gray-500">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        <span style={{ color: sourceColor }} className="font-medium">{sourceName}</span>
+      <div className="card flex items-center gap-4 px-4 py-3 text-sm">
+        <span className="flex items-center gap-1.5 font-medium flex-shrink-0" style={{ color: sourceColor }}>
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: sourceColor }} />
+          {sourceName}
+        </span>
+        <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-400" />
       </div>
     )
   }
@@ -56,10 +60,13 @@ function SourceStatsCards({
     .sort((a, b) => b[1] - a[1])[0]?.[0] ?? '-'
 
   return (
-    <div className="card flex items-center gap-4 px-4 py-3 text-sm overflow-x-auto">
+    <div className="card flex items-center gap-4 px-4 py-3 text-sm overflow-x-auto relative">
       <span className="flex items-center gap-1.5 font-medium flex-shrink-0" style={{ color: sourceColor }}>
         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: sourceColor }} />
         {sourceName}
+        {isFetching && (
+          <Loader2 className="w-3 h-3 animate-spin text-gray-400 ml-0.5" />
+        )}
       </span>
 
       <StatItem icon={Activity} label={t('stats.total')} value={stats.totalCount.toLocaleString()} />

@@ -1,4 +1,5 @@
-import { X, Clock, Globe, Server, Cpu, Activity } from 'lucide-react'
+import { useState } from 'react'
+import { X, Clock, Globe, Server, Cpu, Activity, Copy, Check, GripVertical } from 'lucide-react'
 import { format } from 'date-fns'
 import clsx from 'clsx'
 import type { ApiLogEntry } from '../../types'
@@ -14,9 +15,9 @@ export function LogDetail({ entry, onClose }: LogDetailProps) {
   const t = useT()
 
   return (
-    <div className="card overflow-hidden">
+    <div className="overflow-hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
         <div className="flex items-center gap-2 flex-wrap">
           <span
             className="w-2.5 h-2.5 rounded-full"
@@ -170,7 +171,7 @@ function ParamTable({ params }: { params: Record<string, string | string[]> }) {
                 {k}
               </td>
               <td className="px-3 py-1.5 text-gray-600 dark:text-gray-400 font-mono break-all">
-                {Array.isArray(v) ? v.join(', ') : v}
+                {Array.isArray(v) ? v.map(unescapeUnicode).join(', ') : unescapeUnicode(v)}
               </td>
             </tr>
           ))}
@@ -181,11 +182,46 @@ function ParamTable({ params }: { params: Record<string, string | string[]> }) {
 }
 
 function CodeBlock({ content }: { content: string }) {
+  const t = useT()
+  const [copied, setCopied] = useState(false)
   const formatted = tryFormatJson(content)
+
+  function handleCopy() {
+    navigator.clipboard.writeText(formatted).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
   return (
-    <pre className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-xs font-mono text-gray-800 dark:text-gray-200 overflow-x-auto whitespace-pre-wrap break-all max-h-64 overflow-y-auto">
-      {formatted}
-    </pre>
+    <div className="relative group">
+      {/* Copy button */}
+      <button
+        onClick={handleCopy}
+        className={clsx(
+          'absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all',
+          'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600',
+          'text-gray-600 dark:text-gray-300',
+          'opacity-0 group-hover:opacity-100'
+        )}
+        title={t('detail.copy')}
+      >
+        {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+        {copied ? t('detail.copied') : t('detail.copy')}
+      </button>
+
+      {/* Resize handle hint */}
+      <div className="absolute bottom-1 right-1 z-10 pointer-events-none opacity-30">
+        <GripVertical className="w-3 h-3 text-gray-500 rotate-45" />
+      </div>
+
+      <pre
+        className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-xs font-mono text-gray-800 dark:text-gray-200 overflow-auto whitespace-pre-wrap break-all"
+        style={{ minHeight: '64px', height: '256px', resize: 'vertical', overflow: 'auto' }}
+      >
+        {formatted}
+      </pre>
+    </div>
   )
 }
 
